@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 type Blog struct {
-	Id      string `json:"id"`      //id number of blog post
-	Title   string `json:"title"`   //blog title
-	Author  string `json:"author"`  //author name
-	Content string `json:"content"` //content of blog post ie text
-
+	Id      string `json:"id"`
+	Title   string `json:"title"`
+	Author  string `json:"author"`
+	Content string `json:"content"`
 }
 
 var Posts []Blog
@@ -47,6 +47,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/", Welcome)
 	myRouter.HandleFunc("/Posts", GetAllBlogs)
 	myRouter.HandleFunc("/Post/{id}", GetBlogByID)
+
+	log.Fatal(http.ListenAndServe(":8000", myRouter))
 }
 
 func main() {
@@ -66,4 +68,5 @@ func main() {
 		},
 	}
 
+	handleRequests()
 }
