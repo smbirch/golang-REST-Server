@@ -23,15 +23,17 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Welcome to the blog!\n\n")
 	io.WriteString(w, "'/posts' - See all posts\n")
 	io.WriteString(w, "'/posts/{id}' - Find a post by its ID\n")
+	io.WriteString(w, "'/posts/{id}' Can also be used to delete a post!")
 
 	fmt.Println("hit: '/'")
 }
 
-func GetAllBlogs(w http.ResponseWriter, r *http.Request) {
-
+func GetAllPosts(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(Posts)
+	fmt.Println("hit: /posts")
 }
 
-func GetBlogByID(w http.ResponseWriter, r *http.Request) {
+func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
 
@@ -40,13 +42,19 @@ func GetBlogByID(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(post)
 		}
 	}
+	fmt.Println("hit: '/posts/{id}'")
+}
+
+func DeletePost(w http.ResponseWriter, r *http.Request) {
+	//TODO
 }
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", Welcome)
-	myRouter.HandleFunc("/Posts", GetAllBlogs)
-	myRouter.HandleFunc("/Post/{id}", GetBlogByID)
+	myRouter.HandleFunc("/posts", GetAllPosts)
+	myRouter.HandleFunc("/posts/{id}", GetPostByID)
+	myRouter.HandleFunc("/posts/{id}", DeletePost).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", myRouter))
 }
@@ -55,18 +63,17 @@ func main() {
 
 	Posts = []Blog{
 		{
+			Id:      "1",
 			Title:   "PostOne",
 			Author:  "Spencer",
-			Id:      "1",
 			Content: "Once upon a time...",
 		},
 		{
+			Id:      "2",
 			Title:   "PostTwo",
 			Author:  "Spencer",
-			Id:      "2",
 			Content: "This is the content of the second post",
 		},
 	}
-
 	handleRequests()
 }
