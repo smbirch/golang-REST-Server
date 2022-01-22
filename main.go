@@ -2,53 +2,68 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type Blog struct {
-	Title   string    `json:"title"`   //blog title
-	Author  string    `json:"author"`  //author name
-	Id      string    `json:"id"`      //id number of blog post
-	Content string    `json:"content"` //content of blog post ie text
-	Date    time.Time `json:"date"`    //the date this post was created
+	Id      string `json:"id"`      //id number of blog post
+	Title   string `json:"title"`   //blog title
+	Author  string `json:"author"`  //author name
+	Content string `json:"content"` //content of blog post ie text
+
 }
 
-func welcome(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Welcome to the blog!\n")
+var Posts []Blog
+
+func Welcome(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "Welcome to the blog!\n\n")
+	io.WriteString(w, "'/posts' - See all posts\n")
+	io.WriteString(w, "'/posts/{id}' - Find a post by its ID\n")
+
+	fmt.Println("hit: '/'")
 }
 
-func BlogsHandler(w http.ResponseWriter, r *http.Request) {
+func GetAllBlogs(w http.ResponseWriter, r *http.Request) {
 
-	blogDB := []Blog{
+}
+
+func GetBlogByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+
+	for _, post := range Posts {
+		if post.Id == key {
+			json.NewEncoder(w).Encode(post)
+		}
+	}
+}
+
+func handleRequests() {
+	myRouter := mux.NewRouter().StrictSlash(true)
+	myRouter.HandleFunc("/", Welcome)
+	myRouter.HandleFunc("/Posts", GetAllBlogs)
+	myRouter.HandleFunc("/Post/{id}", GetBlogByID)
+}
+
+func main() {
+
+	Posts = []Blog{
 		{
 			Title:   "PostOne",
 			Author:  "Spencer",
 			Id:      "1",
 			Content: "Once upon a time...",
-			Date:    time.Now(),
 		},
 		{
 			Title:   "PostTwo",
 			Author:  "Spencer",
 			Id:      "2",
 			Content: "This is the content of the second post",
-			Date:    time.Now(),
 		},
 	}
-	json.NewEncoder(w).Encode(blogDB)
-}
-
-func main() {
-
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", welcome)
-
-	mux.HandleFunc("/blogs", BlogsHandler)
-
-	log.Fatal(http.ListenAndServe("localhost:8000", mux))
 
 }
