@@ -35,18 +35,30 @@ func GetAllPosts(w http.ResponseWriter, r *http.Request) {
 
 func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	key := vars["id"]
+	id := vars["id"]
 
 	for _, post := range Posts {
-		if post.Id == key {
+		if post.Id == id {
 			json.NewEncoder(w).Encode(post)
 		}
 	}
 	fmt.Println("hit: '/posts/{id}'")
 }
 
+func CreatePost(w http.ResponseWriter, r *http.Request) {
+
+}
+
+//This...doesnt seem to work, likely because of how my "database" is "storing" the json
 func DeletePost(w http.ResponseWriter, r *http.Request) {
-	//TODO
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	for i, post := range Posts {
+		if post.Id == id {
+			Posts = append(Posts[:i], Posts[i+1:]...)
+		}
+	}
 }
 
 func handleRequests() {
@@ -54,6 +66,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/", Welcome)
 	myRouter.HandleFunc("/posts", GetAllPosts)
 	myRouter.HandleFunc("/posts/{id}", GetPostByID)
+	myRouter.HandleFunc("/posts", CreatePost).Methods("POST")
 	myRouter.HandleFunc("/posts/{id}", DeletePost).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", myRouter))
