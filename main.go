@@ -23,8 +23,8 @@ var Posts []Blog
 func Welcome(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Welcome to the blog!\n\n")
 	io.WriteString(w, "'/posts' - See all posts\n")
-	io.WriteString(w, "'/posts/{id}' - Find a post by its ID\n")
-	io.WriteString(w, "'/posts/{id}' Can also be used to delete a post!\n")
+	io.WriteString(w, "'/post/{id}' - Find a post by its ID\n")
+	io.WriteString(w, "'/post/{id}' Can also be used to delete a post!\n")
 
 	fmt.Println("hit: '/'")
 }
@@ -49,7 +49,6 @@ func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("hit: '/posts/{id}' - by ID")
 }
 
-//this is also broken because
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -61,10 +60,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Posts)
 
 	fmt.Println("hit: '/posts/create'")
-
 }
 
-//This is broken
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
